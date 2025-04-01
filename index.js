@@ -31,7 +31,7 @@ app.event('reaction_added', async ({ event, client }) => {
 
     await client.chat.postMessage({
       channel: TARGET_CHANNEL,
-      text: `👻 匿名フィードバック:\n>${original.text}`,
+      text: `👻 アナウンス:\n>${original.text}`,
       username: "匿名くん",
       icon_emoji: ":ghost:",
     });
