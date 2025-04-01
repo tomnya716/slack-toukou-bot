@@ -13,7 +13,7 @@ const app = new App({
   receiver,
 });
 
-const TRIGGER_REACTION = '両目';
+const TRIGGER_REACTION = 'eyes';
 const SOURCE_CHANNEL = process.env.SOURCE_CHANNEL_ID;
 const TARGET_CHANNEL = process.env.TARGET_CHANNEL_ID;
 
