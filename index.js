@@ -1,15 +1,23 @@
 require('dotenv').config();
-const { App } = require('@slack/bolt');
+const { App, ExpressReceiver } = require('@slack/bolt');
 
-const app = new App({
-  token: process.env.SLACK_BOT_TOKEN,
+// ✅ 1. ExpressReceiverで /slack/events を受け付ける
+const receiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  endpoints: '/slack/events', // Slackに設定するURLと一致！
 });
 
-const TRIGGER_REACTION = 'eyes'; // 👀
+// ✅ 2. Bolt App を receiver 経由で初期化
+const app = new App({
+  token: process.env.SLACK_BOT_TOKEN,
+  receiver,
+});
+
+const TRIGGER_REACTION = 'eyes';
 const SOURCE_CHANNEL = process.env.SOURCE_CHANNEL_ID;
 const TARGET_CHANNEL = process.env.TARGET_CHANNEL_ID;
 
+// ✅ 3. reaction_added イベントを処理
 app.event('reaction_added', async ({ event, client }) => {
   if (event.reaction === TRIGGER_REACTION && event.item.channel === SOURCE_CHANNEL) {
     const result = await client.conversations.history({
@@ -20,6 +28,7 @@ app.event('reaction_added', async ({ event, client }) => {
     });
 
     const original = result.messages[0];
+
     await client.chat.postMessage({
       channel: TARGET_CHANNEL,
       text: `👻 匿名フィードバック:\n>${original.text}`,
@@ -29,8 +38,8 @@ app.event('reaction_added', async ({ event, client }) => {
   }
 });
 
+// ✅ 4. サーバー起動（Renderがここを呼び出す）
 (async () => {
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ Slack bot is running on port 3000');
 })();
-
